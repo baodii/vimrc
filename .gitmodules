@@ -1,0 +1,3 @@
+[submodule "my_plugins/git-blame.vim"]
+	path = my_plugins/git-blame.vim
+	url = https://github.com/zivyangll/git-blame.vim.git
