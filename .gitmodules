@@ -1,3 +1,6 @@
 [submodule "my_plugins/git-blame.vim"]
 	path = my_plugins/git-blame.vim
 	url = https://github.com/zivyangll/git-blame.vim.git
+[submodule "my_plugins/tagbar"]
+	path = my_plugins/tagbar
+	url = https://github.com/preservim/tagbar.git
