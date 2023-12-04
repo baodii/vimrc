@@ -14,3 +14,4 @@ source ~/.vim_runtime/my_plugins/cscope_maps.vim
 
 " get file absolute path
 command! Fpath echo expand('%:p')
+nnoremap <leader>fp :echo expand('%:p')<CR>
