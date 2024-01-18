@@ -15,3 +15,10 @@ source ~/.vim_runtime/my_plugins/cscope_maps.vim
 " get file absolute path
 command! Fpath echo expand('%:p')
 nnoremap <leader>fp :echo expand('%:p')<CR>
+
+" jump to the previous function
+nnoremap <silent> [f :call
+\ search('\(\(if\\|for\\|while\\|switch\\|catch\)\_s*\)\@64<!(\_[^)]*)\_[^;{}()]*\zs{', "bw")<CR>
+" jump to the next function
+nnoremap <silent> ]f :call
+\ search('\(\(if\\|for\\|while\\|switch\\|catch\)\_s*\)\@64<!(\_[^)]*)\_[^;{}()]*\zs{', "w")<CR>
