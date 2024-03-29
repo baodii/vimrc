@@ -4,3 +4,6 @@
 [submodule "my_plugins/tagbar"]
 	path = my_plugins/tagbar
 	url = https://github.com/preservim/tagbar.git
+[submodule "my_plugins/copilot.vim"]
+	path = my_plugins/copilot.vim
+	url = https://github.com/github/copilot.vim.git
