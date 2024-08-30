@@ -31,3 +31,7 @@ augroup numbertoggle
   autocmd BufEnter,FocusGained,InsertLeave,WinEnter * if &nu && mode() != "i" | set rnu   | endif
   autocmd BufLeave,FocusLost,InsertEnter,WinLeave   * if &nu                  | set nornu | endif
 augroup END
+
+" set cursorline
+set cursorline
+highlight CursorLine ctermbg=darkblue guibg=#1E90FF
