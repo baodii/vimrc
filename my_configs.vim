@@ -34,4 +34,4 @@ augroup END
 
 " set cursorline
 set cursorline
-highlight CursorLine cterm=NONE gui=NONE ctermbg=darkblue guibg=#1E90FF
+highlight CursorLine cterm=NONE gui=NONE ctermbg=238 guibg=#1E90FF
