@@ -38,3 +38,6 @@ highlight CursorLine cterm=NONE gui=NONE ctermbg=238 guibg=#1E90FF
 
 " set F8 to TagbarToggle
 nmap <F8> :TagbarToggle<CR>
+
+" * command not go to next match
+nnoremap * :keepjumps normal! mi*`i<CR>
