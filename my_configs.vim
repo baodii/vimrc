@@ -40,4 +40,12 @@ highlight CursorLine cterm=NONE gui=NONE ctermbg=238 guibg=#1E90FF
 nmap <F8> :TagbarToggle<CR>
 
 " * command not go to next match
-nnoremap * :keepjumps normal! mi*`i<CR>
+" nnoremap * :keepjumps normal! mi*`i<CR>
+"
+
+" Remap * in normal mode to search for the word under the cursor without jumping
+nnoremap * :let @/ = '\<'.expand('<cword>').'\>'<CR>:echo 'Match ' . searchcount().current . ' of ' . searchcount().total<CR>
+
+" Remap * in visual mode to search for the selected text without jumping
+xnoremap * y:let @/ = '\V'.escape(@", '/\')<CR>:echo 'Match ' . searchcount().current . ' of ' . searchcount().total<CR>
+
