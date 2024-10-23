@@ -49,3 +49,8 @@ nnoremap * :let @/ = '\<'.expand('<cword>').'\>'<CR>:echo 'Match ' . searchcount
 " Remap * in visual mode to search for the selected text without jumping
 xnoremap * y:let @/ = '\V'.escape(@", '/\')<CR>:echo 'Match ' . searchcount().current . ' of ' . searchcount().total<CR>
 
+" Remap n to show the current match count and total count after moving to the next match
+nnoremap n n:echo 'Match ' . searchcount().current . ' of ' . searchcount().total<CR>
+
+" Remap N to show the current match count and total count after moving to the previous match
+nnoremap N N:echo 'Match ' . searchcount().current . ' of ' . searchcount().total<CR>
