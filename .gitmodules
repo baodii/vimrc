@@ -7,3 +7,6 @@
 [submodule "my_plugins/copilot.vim"]
 	path = my_plugins/copilot.vim
 	url = https://github.com/github/copilot.vim.git
+[submodule "my_plugins/vim-matchit"]
+	path = my_plugins/vim-matchit
+	url = https://github.com/adelarsq/vim-matchit.git
