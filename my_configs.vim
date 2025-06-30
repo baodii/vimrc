@@ -54,3 +54,15 @@ nnoremap n n:echo 'Match ' . searchcount().current . ' of ' . searchcount().tota
 
 " Remap N to show the current match count and total count after moving to the previous match
 nnoremap N N:echo 'Match ' . searchcount().current . ' of ' . searchcount().total<CR>
+" Toggle line numbers and relative line numbers
+function! ToggleNumbers()
+  if &number || &relativenumber
+    set nonumber norelativenumber
+  else
+    set number relativenumber
+  endif
+endfunction
+
+command! ToggleNumbers call ToggleNumbers()
+nnoremap <leader>lt :ToggleNumbers<CR>
+
