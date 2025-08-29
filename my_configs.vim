@@ -66,3 +66,6 @@ endfunction
 command! ToggleNumbers call ToggleNumbers()
 nnoremap <leader>lt :ToggleNumbers<CR>
 
+"mll theme
+set background=light " or light if you want light mode
+colorscheme gruvbox
