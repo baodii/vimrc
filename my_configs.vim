@@ -66,3 +66,6 @@ endfunction
 command! ToggleNumbers call ToggleNumbers()
 nnoremap <leader>lt :ToggleNumbers<CR>
 
+" matchpairs <>
+set matchpairs+=<:>
+
