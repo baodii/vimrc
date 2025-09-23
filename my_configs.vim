@@ -66,6 +66,8 @@ endfunction
 command! ToggleNumbers call ToggleNumbers()
 nnoremap <leader>lt :ToggleNumbers<CR>
 
-" matchpairs <>
-set matchpairs+=<:>
-
+" matchpairs <> only valid for cpp and cu
+augroup cpp_brackets
+  autocmd!
+  autocmd FileType cpp,cu setlocal matchpairs+=<:>
+augroup END
