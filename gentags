@@ -15,7 +15,7 @@ CSCOPE_DIR="$PWD/cscope"
 CSCOPE_FILES="$CSCOPE_DIR/cscope.files"
 CSCOPE_STATE="$CSCOPE_DIR/cscope.state"
 CSCOPE_STATE_NEW="$CSCOPE_DIR/cscope.state.new"
-CSCOPE_OUT="$CSCOPE_DIR/cscope.out"
+CSCOPE_OUT="$PWD/cscope.out"
 CTAGS_FILE="$CSCOPE_DIR/tags"
 
 mkdir -p "$CSCOPE_DIR"
@@ -85,7 +85,7 @@ if [ "$rebuild_needed" = true ]; then
   echo "[4/5] Building cscope database ($CSCOPE_OUT) ..."
   cscope -b -q -k -i "$CSCOPE_FILES" -f "$CSCOPE_OUT"
 
-  ln -sf "$CSCOPE_OUT" "$PWD/cscope.out"
+  # ln -sf "$CSCOPE_OUT" "$PWD/cscope.out"
 
   echo "[5/5] ✔ Databases rebuilt."
 else
