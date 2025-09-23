@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-# Generate cscope and ctags databases for the current project, with incremental rebuilds
-# Detects file content changes (via mtimes) and supports --force and --clean.
+# Generate cscope and ctags databases for the current project
+# Incremental rebuilds based on file mtimes, preserves Vim marks/line numbers.
+# Supports: --force, --clean
 
 set -euo pipefail
 
+# Parse command-line option
 ACTION="build"
 if [ "${1:-}" = "--force" ]; then
   ACTION="force"
@@ -15,19 +17,19 @@ CSCOPE_DIR="$PWD/cscope"
 CSCOPE_FILES="$CSCOPE_DIR/cscope.files"
 CSCOPE_STATE="$CSCOPE_DIR/cscope.state"
 CSCOPE_STATE_NEW="$CSCOPE_DIR/cscope.state.new"
-CSCOPE_OUT="$PWD/cscope.out"
+CSCOPE_OUT="$PWD/cscope.out"       # Build directly here for Vim stability
 CTAGS_FILE="$CSCOPE_DIR/tags"
 
 mkdir -p "$CSCOPE_DIR"
 
 if [ "$ACTION" = "clean" ]; then
   echo "[clean] Removing generated files..."
-  rm -rf "$CSCOPE_DIR" "$PWD/cscope.out"
+  rm -rf "$CSCOPE_DIR" "$CSCOPE_OUT"
   echo "✔ Cleaned."
   exit 0
 fi
 
-echo "[1/5] Scanning for source files ..."
+echo "[1/5] Scanning for source files..."
 find "$PWD" \
   \( -path "$PWD/build" -o -path "$PWD/.git" \) -prune -false \
   -o -type f \
@@ -37,7 +39,7 @@ find "$PWD" \
   \) \
   | LC_ALL=C sort > "$CSCOPE_FILES"
 
-echo "[2/5] Recording file mtimes ..."
+echo "[2/5] Recording file mtimes..."
 : > "$CSCOPE_STATE_NEW"
 while IFS= read -r file; do
   if stat --version >/dev/null 2>&1; then
@@ -66,7 +68,7 @@ fi
 if [ "$rebuild_needed" = true ]; then
   mv "$CSCOPE_STATE_NEW" "$CSCOPE_STATE"
 
-  echo "[3/5] Building ctags ($CTAGS_FILE) ..."
+  echo "[3/5] Building ctags ($CTAGS_FILE)..."
   if ctags --version 2>/dev/null | grep -qi universal; then
     # Universal Ctags
     ctags -L "$CSCOPE_FILES" \
@@ -74,18 +76,18 @@ if [ "$rebuild_needed" = true ]; then
       --langmap=C++:+.inc.cl.cu.cuh \
       --kinds-C++=+p --kinds-C=+p \
       --fields=+iaSl --extras=+q \
-      -f "$CTAGS_FILE"
+      -f "$CTAGS_FILE.new"
   else
     # Exuberant Ctags fallback
     ctags -L "$CSCOPE_FILES" \
       --langmap=c++:+.inc.cl.cu.cuh \
-      -f "$CTAGS_FILE"
+      -f "$CTAGS_FILE.new"
   fi
+  mv "$CTAGS_FILE.new" "$CTAGS_FILE"
 
-  echo "[4/5] Building cscope database ($CSCOPE_OUT) ..."
-  cscope -b -q -k -i "$CSCOPE_FILES" -f "$CSCOPE_OUT"
-
-  # ln -sf "$CSCOPE_OUT" "$PWD/cscope.out"
+  echo "[4/5] Building cscope database ($CSCOPE_OUT)..."
+  cscope -b -q -k -i "$CSCOPE_FILES" -f "$CSCOPE_OUT.tmp"
+  mv "$CSCOPE_OUT.tmp" "$CSCOPE_OUT"  # atomic move
 
   echo "[5/5] ✔ Databases rebuilt."
 else
@@ -93,6 +95,6 @@ else
   echo "[5/5] ✔ Nothing to rebuild. Existing databases are up to date."
 fi
 
-echo "   cscope.out -> $CSCOPE_OUT (symlinked at project root)"
+echo "   cscope.out -> $CSCOPE_OUT (stable for Vim)"
 echo "   tags file   -> $CTAGS_FILE"
 
