@@ -73,5 +73,6 @@ augroup cpp_brackets
 augroup END
 
 set background=dark
-let g:everforest_background = 'soft'
-colorscheme everforest
+let g:gruvbox_contrast_dark = 'soft'
+let g:gruvbox_contrast_light = 'soft'
+colorscheme gruvbox
