@@ -71,3 +71,7 @@ augroup cpp_brackets
   autocmd!
   autocmd FileType cpp,cu setlocal matchpairs+=<:>
 augroup END
+
+set background=dark
+let g:everforest_background = 'soft'
+colorscheme everforest

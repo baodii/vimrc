@@ -10,3 +10,9 @@
 [submodule "my_plugins/vim-matchit"]
 	path = my_plugins/vim-matchit
 	url = https://github.com/adelarsq/vim-matchit.git
+[submodule "my_plugins/everforest"]
+	path = my_plugins/everforest
+	url = https://github.com/sainnhe/everforest
+[submodule "my_plugins/vim-polyglot"]
+	path = my_plugins/vim-polyglot
+	url = https://github.com/sheerun/vim-polyglot.git
