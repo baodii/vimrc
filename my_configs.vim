@@ -72,7 +72,10 @@ augroup cpp_brackets
   autocmd FileType cpp,cu setlocal matchpairs+=<:>
 augroup END
 
-set background=dark
 let g:gruvbox_contrast_dark = 'soft'
 let g:gruvbox_contrast_light = 'soft'
 colorscheme gruvbox
+
+" Prevent the terminal from overriding background after startup
+set t_RB=
+set background=dark
