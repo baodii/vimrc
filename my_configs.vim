@@ -44,10 +44,10 @@ nmap <F8> :TagbarToggle<CR>
 "
 
 " Remap * in normal mode to search for the word under the cursor without jumping
-nnoremap * :let @/ = '\<'.expand('<cword>').'\>'<CR>:echo 'Match ' . searchcount().current . ' of ' . searchcount().total<CR>
+nnoremap * :let @/ = '\<'.expand('<cword>').'\>'<CR>:set hlsearch<CR>:echo 'Match ' . searchcount().current . ' of ' . searchcount().total<CR>
 
 " Remap * in visual mode to search for the selected text without jumping
-xnoremap * y:let @/ = '\V'.escape(@", '/\')<CR>:echo 'Match ' . searchcount().current . ' of ' . searchcount().total<CR>
+xnoremap * y:let @/ = '\V'.escape(@", '/\')<CR>:set hlsearch<CR>:echo 'Match ' . searchcount().current . ' of ' . searchcount().total<CR>
 
 " Remap n to show the current match count and total count after moving to the next match
 nnoremap n n:echo 'Match ' . searchcount().current . ' of ' . searchcount().total<CR>
