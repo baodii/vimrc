@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+# Generate cscope and ctags databases for the current project, with incremental rebuilds
+# Detects file content changes (via mtimes) and supports --force and --clean.
+
+set -euo pipefail
+
+ACTION="build"
+if [ "${1:-}" = "--force" ]; then
+  ACTION="force"
+elif [ "${1:-}" = "--clean" ]; then
+  ACTION="clean"
+fi
+
+CSCOPE_DIR="$PWD/cscope"
+CSCOPE_FILES="$CSCOPE_DIR/cscope.files"
+CSCOPE_STATE="$CSCOPE_DIR/cscope.state"
+CSCOPE_STATE_NEW="$CSCOPE_DIR/cscope.state.new"
+CSCOPE_OUT="$PWD/cscope.out"
+CTAGS_FILE="$CSCOPE_DIR/tags"
+
+mkdir -p "$CSCOPE_DIR"
+
+if [ "$ACTION" = "clean" ]; then
+  echo "[clean] Removing generated files..."
+  rm -rf "$CSCOPE_DIR" "$PWD/cscope.out"
+  echo "✔ Cleaned."
+  exit 0
+fi
+
+echo "[1/5] Scanning for source files ..."
+find "$PWD" \
+  \( -path "$PWD/build" -o -path "$PWD/.git" \) -prune -false \
+  -o -type f \
+  \( -name '*.[ch]' -o -name '*.cpp' -o -name '*.cc' -o -name '*.hpp' \
+     -o -name '*.cuh' -o -name '*.cu' -o -name '*.inc' -o -name '*.cl' \
+     -o -name '*.java' -o -name '*.properties' -o -name '*.py' -o -name '*.php' \
+  \) \
+  | LC_ALL=C sort > "$CSCOPE_FILES"
+
+echo "[2/5] Recording file mtimes ..."
+: > "$CSCOPE_STATE_NEW"
+while IFS= read -r file; do
+  if stat --version >/dev/null 2>&1; then
+    # GNU stat
+    stat -c "%Y %s %n" "$file" >> "$CSCOPE_STATE_NEW"
+  else
+    # BSD/macOS stat
+    stat -f "%m %z %N" "$file" >> "$CSCOPE_STATE_NEW"
+  fi
+done < "$CSCOPE_FILES"
+
+rebuild_needed=false
+if [ "$ACTION" = "force" ]; then
+  echo "  • Forced rebuild requested."
+  rebuild_needed=true
+elif [ ! -f "$CSCOPE_STATE" ]; then
+  echo "  • No previous state, full rebuild required."
+  rebuild_needed=true
+elif ! cmp -s "$CSCOPE_STATE_NEW" "$CSCOPE_STATE"; then
+  echo "  • File list or mtimes changed, rebuild required."
+  rebuild_needed=true
+else
+  echo "  • No changes detected."
+fi
+
+if [ "$rebuild_needed" = true ]; then
+  mv "$CSCOPE_STATE_NEW" "$CSCOPE_STATE"
+
+  echo "[3/5] Building ctags ($CTAGS_FILE) ..."
+  if ctags --version 2>/dev/null | grep -qi universal; then
+    # Universal Ctags
+    ctags -L "$CSCOPE_FILES" \
+      --languages=+C,C++,Java,Python,PHP \
+      --langmap=C++:+.inc.cl.cu.cuh \
+      --kinds-C++=+p --kinds-C=+p \
+      --fields=+iaSl --extras=+q \
+      -f "$CTAGS_FILE"
+  else
+    # Exuberant Ctags fallback
+    ctags -L "$CSCOPE_FILES" \
+      --langmap=c++:+.inc.cl.cu.cuh \
+      -f "$CTAGS_FILE"
+  fi
+
+  echo "[4/5] Building cscope database ($CSCOPE_OUT) ..."
+  cscope -b -q -k -i "$CSCOPE_FILES" -f "$CSCOPE_OUT"
+
+  # ln -sf "$CSCOPE_OUT" "$PWD/cscope.out"
+
+  echo "[5/5] ✔ Databases rebuilt."
+else
+  rm -f "$CSCOPE_STATE_NEW"
+  echo "[5/5] ✔ Nothing to rebuild. Existing databases are up to date."
+fi
+
+echo "   cscope.out -> $CSCOPE_OUT (symlinked at project root)"
+echo "   tags file   -> $CTAGS_FILE"
+
