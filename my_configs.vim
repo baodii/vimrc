@@ -184,3 +184,15 @@ colorscheme gruvbox
 " Prevent the terminal from overriding background after startup
 set t_RB=
 set background=dark
+
+" OSC 52: yank to local clipboard over SSH
+function! Osc52Yank() abort
+    let encoded = system('base64 -w0', @0)
+    let encoded = substitute(encoded, '\n$', '', '')
+    call writefile(["\x1b]52;c;" . encoded . "\x07"], '/dev/tty', 'b')
+endfunction
+
+augroup osc52_yank
+    autocmd!
+    autocmd TextYankPost * if v:event.operator ==# 'y' | call Osc52Yank() | endif
+augroup END

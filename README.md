@@ -140,6 +140,21 @@ for example `colorscheme pyte`.
 * [vim-python-pep8-indent](https://github.com/Vimjas/vim-python-pep8-indent)
 
 
+## Clipboard over SSH (OSC 52)
+
+Yanking in Vim on a remote server automatically copies to your local system clipboard via OSC 52 escape sequences. To make this work:
+
+1. **Local terminal (one-time setup):** In iTerm2, go to **Settings → General → Selection** and enable **"Applications in terminal may access clipboard"**.
+
+2. **tmux (if used):** Add the following to `~/.tmux.conf` on the remote server:
+
+        set -g set-clipboard on
+
+   Then reload with `tmux source-file ~/.tmux.conf`.
+
+No extra configuration is needed on the remote server beyond this vim setup.
+
+
 ## How to include your own stuff?
 
 After you have installed the setup,
