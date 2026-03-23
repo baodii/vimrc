@@ -171,15 +171,15 @@ endfunction
 command! ToggleNumbers call ToggleNumbers()
 nnoremap <leader>lt :ToggleNumbers<CR>
 
-
 "mll theme
 set background=light " or light if you want light mode
 colorscheme gruvbox
 
-" matchpairs <> only valid for cpp and cu
+" matchpairs <> only valid for cpp and cuda
+
 augroup cpp_brackets
   autocmd!
-  autocmd FileType cpp,cu setlocal matchpairs+=<:>
+  autocmd FileType cpp,cuda setlocal matchpairs+=<:>
 augroup END
 
 
