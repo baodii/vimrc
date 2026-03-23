@@ -171,10 +171,10 @@ endfunction
 command! ToggleNumbers call ToggleNumbers()
 nnoremap <leader>lt :ToggleNumbers<CR>
 
-" matchpairs <> only valid for cpp and cu
+" matchpairs <> only valid for cpp and cuda
 augroup cpp_brackets
   autocmd!
-  autocmd FileType cpp,cu setlocal matchpairs+=<:>
+  autocmd FileType cpp,cuda setlocal matchpairs+=<:>
 augroup END
 
 let g:gruvbox_contrast_dark = 'soft'
