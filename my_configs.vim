@@ -177,6 +177,10 @@ augroup cpp_brackets
   autocmd FileType cpp,cuda setlocal matchpairs+=<:>
 augroup END
 
+" Show total line count in lightline statusbar
+let g:lightline.active.right = [ [ 'lineinfo' ], ['percent'], ['totallines'] ]
+let g:lightline.component.totallines = '%L lines'
+
 let g:gruvbox_contrast_dark = 'soft'
 let g:gruvbox_contrast_light = 'soft'
 colorscheme gruvbox
