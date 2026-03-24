@@ -148,6 +148,9 @@ nmap <F8> :TagbarToggle<CR>
 " nnoremap * :keepjumps normal! mi*`i<CR>
 "
 
+" Disable search highlight with <leader><cr>
+nnoremap <silent> <leader><cr> :nohlsearch<CR>
+
 " Remap * in normal mode to search for the word under the cursor without jumping
 nnoremap * :let @/ = '\<'.expand('<cword>').'\>'<CR>:set hlsearch<CR>:echo 'Match ' . searchcount().current . ' of ' . searchcount().total<CR>
 
