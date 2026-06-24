@@ -1,98 +1,82 @@
 #!/usr/bin/env bash
-# Generate cscope and ctags databases for the current project, with incremental rebuilds
-# Detects file content changes (via mtimes) and supports --force and --clean.
-
 set -euo pipefail
 
-ACTION="build"
-if [ "${1:-}" = "--force" ]; then
-  ACTION="force"
-elif [ "${1:-}" = "--clean" ]; then
-  ACTION="clean"
-fi
+usage() {
+  printf 'Usage: %s [project-root]\n' "${0##*/}"
+}
 
-CSCOPE_DIR="$PWD/cscope"
-CSCOPE_FILES="$CSCOPE_DIR/cscope.files"
-CSCOPE_STATE="$CSCOPE_DIR/cscope.state"
-CSCOPE_STATE_NEW="$CSCOPE_DIR/cscope.state.new"
-CSCOPE_OUT="$PWD/cscope.out"
-CTAGS_FILE="$CSCOPE_DIR/tags"
-
-mkdir -p "$CSCOPE_DIR"
-
-if [ "$ACTION" = "clean" ]; then
-  echo "[clean] Removing generated files..."
-  rm -rf "$CSCOPE_DIR" "$PWD/cscope.out"
-  echo "✔ Cleaned."
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
   exit 0
 fi
 
-echo "[1/5] Scanning for source files ..."
-find "$PWD" \
-  \( -path "$PWD/build" -o -path "$PWD/.git" \) -prune -false \
-  -o -type f \
-  \( -name '*.[ch]' -o -name '*.cpp' -o -name '*.cc' -o -name '*.hpp' \
-     -o -name '*.cuh' -o -name '*.cu' -o -name '*.inc' -o -name '*.cl' \
-     -o -name '*.java' -o -name '*.properties' -o -name '*.py' -o -name '*.php' \
-  \) \
-  | LC_ALL=C sort > "$CSCOPE_FILES"
-
-echo "[2/5] Recording file mtimes ..."
-: > "$CSCOPE_STATE_NEW"
-while IFS= read -r file; do
-  if stat --version >/dev/null 2>&1; then
-    # GNU stat
-    stat -c "%Y %s %n" "$file" >> "$CSCOPE_STATE_NEW"
-  else
-    # BSD/macOS stat
-    stat -f "%m %z %N" "$file" >> "$CSCOPE_STATE_NEW"
-  fi
-done < "$CSCOPE_FILES"
-
-rebuild_needed=false
-if [ "$ACTION" = "force" ]; then
-  echo "  • Forced rebuild requested."
-  rebuild_needed=true
-elif [ ! -f "$CSCOPE_STATE" ]; then
-  echo "  • No previous state, full rebuild required."
-  rebuild_needed=true
-elif ! cmp -s "$CSCOPE_STATE_NEW" "$CSCOPE_STATE"; then
-  echo "  • File list or mtimes changed, rebuild required."
-  rebuild_needed=true
-else
-  echo "  • No changes detected."
+if (($# > 1)); then
+  usage >&2
+  exit 2
 fi
 
-if [ "$rebuild_needed" = true ]; then
-  mv "$CSCOPE_STATE_NEW" "$CSCOPE_STATE"
-
-  echo "[3/5] Building ctags ($CTAGS_FILE) ..."
-  if ctags --version 2>/dev/null | grep -qi universal; then
-    # Universal Ctags
-    ctags -L "$CSCOPE_FILES" \
-      --languages=+C,C++,Java,Python,PHP \
-      --langmap=C++:+.inc.cl.cu.cuh \
-      --kinds-C++=+p --kinds-C=+p \
-      --fields=+iaSl --extras=+q \
-      -f "$CTAGS_FILE"
-  else
-    # Exuberant Ctags fallback
-    ctags -L "$CSCOPE_FILES" \
-      --langmap=c++:+.inc.cl.cu.cuh \
-      -f "$CTAGS_FILE"
+for tool in find ctags cscope; do
+  if ! command -v "$tool" >/dev/null 2>&1; then
+    printf 'error: required command not found: %s\n' "$tool" >&2
+    exit 127
   fi
+done
 
-  echo "[4/5] Building cscope database ($CSCOPE_OUT) ..."
-  cscope -b -q -k -i "$CSCOPE_FILES" -f "$CSCOPE_OUT"
-
-  # ln -sf "$CSCOPE_OUT" "$PWD/cscope.out"
-
-  echo "[5/5] ✔ Databases rebuilt."
-else
-  rm -f "$CSCOPE_STATE_NEW"
-  echo "[5/5] ✔ Nothing to rebuild. Existing databases are up to date."
+root="${1:-$PWD}"
+if [[ ! -d "$root" ]]; then
+  printf 'error: project root does not exist: %s\n' "$root" >&2
+  exit 1
 fi
 
-echo "   cscope.out -> $CSCOPE_OUT (symlinked at project root)"
-echo "   tags file   -> $CTAGS_FILE"
+root="$(cd "$root" && pwd -P)"
+cscope_dir="$root/cscope"
+files_file="$cscope_dir/cscope.files"
+tags_file="$root/tags"
+cscope_db="$root/cscope.out"
 
+mkdir -p "$cscope_dir"
+
+printf 'Finding source files under %s ...\n' "$root"
+find "$root" \
+  \( -type d \( \
+    -name .git \
+    -o -name .hg \
+    -o -name .svn \
+    -o -name .venv \
+    -o -name build \
+    -o -name cscope \
+    -o -name node_modules \
+    -o -name vendor \
+    -o -name __pycache__ \
+  \) -prune \) -o \
+  \( -type f \( \
+    -name '*.[ch]' \
+    -o -name '*.cc' \
+    -o -name '*.cl' \
+    -o -name '*.cpp' \
+    -o -name '*.cu' \
+    -o -name '*.cuh' \
+    -o -name '*.hxx' \
+    -o -name '*.hpp' \
+    -o -name '*.inc' \
+    -o -name '*.java' \
+    -o -name '*.php' \
+    -o -name '*.properties' \
+    -o -name '*.py' \
+  \) -print \) > "$files_file"
+
+file_count="$(wc -l < "$files_file")"
+printf 'Indexed %s files in %s\n' "$file_count" "$files_file"
+
+printf 'Generating tags at %s ...\n' "$tags_file"
+ctags -f "$tags_file" -L "$files_file" --langmap=c++:+.inc.cl.cu.cuh
+
+printf 'Generating cscope database at %s ...\n' "$cscope_db"
+cscope -b -i "$files_file" -f "$cscope_db"
+
+export CSCOPE_DB="$cscope_db"
+if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
+  printf 'Exported CSCOPE_DB=%s\n' "$CSCOPE_DB"
+else
+  printf 'Set cscope for this shell with: export CSCOPE_DB=%q\n' "$cscope_db"
+fi
