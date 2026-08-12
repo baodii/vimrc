@@ -14,7 +14,7 @@ source ~/.vim_runtime/my_plugins/cscope_maps.vim
 
 " get file absolute path
 command! Fpath echo expand('%:p')
-nnoremap <leader>fp :echo expand('%:p')<CR>
+nnoremap <leader>fp :call Osc52Yank(expand('%:p'))<Bar>echo expand('%:p')<CR>
 
 " jump to the previous function
 nnoremap <silent> [f :call
@@ -193,8 +193,9 @@ set t_RB=
 set background=dark
 
 " OSC 52: yank to local clipboard over SSH
-function! Osc52Yank() abort
-    let encoded = system('base64 -w0', @0)
+function! Osc52Yank(...) abort
+    let text = a:0 ? a:1 : @0
+    let encoded = system('base64 -w0', text)
     let encoded = substitute(encoded, '\n$', '', '')
     call writefile(["\x1b]52;c;" . encoded . "\x07"], '/dev/tty', 'b')
 endfunction
