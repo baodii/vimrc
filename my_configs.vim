@@ -1,5 +1,5 @@
 " highlight IncSearch
-hi IncSearch term=reverse ctermfg=16 ctermbg=46 guifg=#000000 guibg=#00f000
+hi IncSearch term=reverse ctermfg=16 ctermbg=220 guifg=#000000 guibg=#ffd700
 
 " map git blame
 nnoremap <leader>s :<C-u>call gitblame#echo()<CR>
@@ -193,8 +193,8 @@ function! s:ReadableHighlights() abort
   hi DiffText   cterm=bold      ctermfg=231  ctermbg=166 gui=bold guifg=#ffffff guibg=#d65d0e
   hi DiffDelete cterm=NONE      ctermfg=231  ctermbg=124 gui=NONE guifg=#ffffff guibg=#af0000
   hi Search     cterm=NONE      ctermfg=16   ctermbg=213 gui=NONE guifg=#000000 guibg=#ff87ff
-  hi IncSearch  cterm=bold      ctermfg=16   ctermbg=46  gui=bold guifg=#000000 guibg=#00f000
-  hi CurSearch  cterm=bold      ctermfg=16   ctermbg=46  gui=bold guifg=#000000 guibg=#00f000
+  hi IncSearch  cterm=bold      ctermfg=16   ctermbg=220 gui=bold guifg=#000000 guibg=#ffd700
+  hi CurSearch  cterm=bold      ctermfg=16   ctermbg=220 gui=bold guifg=#000000 guibg=#ffd700
   hi Visual     cterm=NONE      ctermfg=NONE ctermbg=24  gui=NONE guifg=NONE    guibg=#264f78
   hi CursorLine cterm=NONE      ctermbg=239  gui=NONE guibg=#504945
 endfunction
