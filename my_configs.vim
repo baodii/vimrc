@@ -186,6 +186,22 @@ let g:lightline.component.totallines = '%L lines'
 
 let g:gruvbox_contrast_dark = 'soft'
 let g:gruvbox_contrast_light = 'soft'
+" Readable diff/search colors (applied after every colorscheme load)
+function! s:ReadableHighlights() abort
+  hi DiffAdd    cterm=NONE      ctermfg=NONE ctermbg=22  gui=NONE guifg=NONE    guibg=#1e3a1e
+  hi DiffChange cterm=NONE      ctermfg=NONE ctermbg=17  gui=NONE guifg=NONE    guibg=#1c2a44
+  hi DiffText   cterm=bold      ctermfg=231  ctermbg=166 gui=bold guifg=#ffffff guibg=#d65d0e
+  hi DiffDelete cterm=NONE      ctermfg=167  ctermbg=52  gui=NONE guifg=#fb4934 guibg=#3c1a1a
+  hi Search     cterm=NONE      ctermfg=16   ctermbg=213 gui=NONE guifg=#000000 guibg=#ff87ff
+  hi IncSearch  cterm=bold      ctermfg=16   ctermbg=46  gui=bold guifg=#000000 guibg=#00f000
+  hi CurSearch  cterm=bold      ctermfg=16   ctermbg=46  gui=bold guifg=#000000 guibg=#00f000
+  hi Visual     cterm=NONE      ctermfg=NONE ctermbg=24  gui=NONE guifg=NONE    guibg=#264f78
+  hi CursorLine cterm=NONE      ctermbg=236  gui=NONE guibg=#32302f
+endfunction
+augroup readable_highlights
+  autocmd!
+  autocmd ColorScheme * call s:ReadableHighlights()
+augroup END
 colorscheme gruvbox
 
 " Prevent the terminal from overriding background after startup
