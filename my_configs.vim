@@ -220,3 +220,21 @@ augroup osc52_yank
     autocmd!
     autocmd TextYankPost * if v:event.operator ==# 'y' | call Osc52Yank() | endif
 augroup END
+
+" In diff mode, use a distinct grey-purple cursor line so it differs from diff colors
+function! s:DiffCursorLine() abort
+  for w in range(1, winnr('$'))
+    call setwinvar(w, '&cursorlineopt', 'both')
+  endfor
+  if len(filter(range(1, winnr('$')), 'getwinvar(v:val, "&diff")'))
+    hi CursorLine cterm=NONE ctermbg=60 gui=NONE guibg=#5f5f87
+    hi CursorLineNr cterm=bold ctermfg=16 ctermbg=226 gui=bold guifg=#000000 guibg=#ffff00
+  else
+    hi CursorLine cterm=NONE ctermbg=236 gui=NONE guibg=#32302f
+  endif
+endfunction
+augroup diff_cursorline
+  autocmd!
+  autocmd VimEnter,WinEnter,BufWinEnter,ColorScheme * call s:DiffCursorLine()
+  autocmd OptionSet diff call s:DiffCursorLine()
+augroup END
