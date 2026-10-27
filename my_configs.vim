@@ -197,6 +197,7 @@ function! s:ReadableHighlights() abort
   hi CurSearch  cterm=bold      ctermfg=16   ctermbg=220 gui=bold guifg=#000000 guibg=#ffd700
   hi Visual     cterm=NONE      ctermfg=NONE ctermbg=24  gui=NONE guifg=NONE    guibg=#264f78
   hi CursorLine cterm=NONE      ctermbg=239  gui=NONE guibg=#504945
+  hi MatchParen cterm=bold      ctermfg=16   ctermbg=45  gui=bold guifg=#000000 guibg=#00d7ff
 endfunction
 augroup readable_highlights
   autocmd!
@@ -221,14 +222,30 @@ augroup osc52_yank
     autocmd TextYankPost * if v:event.operator ==# 'y' | call Osc52Yank() | endif
 augroup END
 
-" In diff mode, use a distinct grey-purple cursor line so it differs from diff colors
+" In diff mode, the cursor line is a lighter shade of that line's diff color
+function! s:DiffCursorLineColor() abort
+  if !&diff
+    return
+  endif
+  let name = synIDattr(diff_hlID(line('.'), 1), 'name')
+  if name ==# 'DiffAdd'
+    hi CursorLine cterm=NONE ctermbg=71  gui=NONE guibg=#5faf5f
+  elseif name ==# 'DiffChange' || name ==# 'DiffText'
+    hi CursorLine cterm=NONE ctermbg=67  gui=NONE guibg=#5f87af
+  elseif name ==# 'DiffDelete'
+    hi CursorLine cterm=NONE ctermbg=167 gui=NONE guibg=#d75f5f
+  else
+    hi CursorLine cterm=NONE ctermbg=60  gui=NONE guibg=#5f5f87
+  endif
+endfunction
 function! s:DiffCursorLine() abort
   for w in range(1, winnr('$'))
     call setwinvar(w, '&cursorlineopt', 'both')
   endfor
   if len(filter(range(1, winnr('$')), 'getwinvar(v:val, "&diff")'))
-    hi CursorLine cterm=NONE ctermbg=60 gui=NONE guibg=#5f5f87
     hi CursorLineNr cterm=bold ctermfg=16 ctermbg=226 gui=bold guifg=#000000 guibg=#ffff00
+    hi CursorLine cterm=NONE ctermbg=60 gui=NONE guibg=#5f5f87
+    call s:DiffCursorLineColor()
   else
     hi CursorLine cterm=NONE ctermbg=239 gui=NONE guibg=#504945
   endif
@@ -237,4 +254,5 @@ augroup diff_cursorline
   autocmd!
   autocmd VimEnter,WinEnter,BufWinEnter,ColorScheme * call s:DiffCursorLine()
   autocmd OptionSet diff call s:DiffCursorLine()
+  autocmd CursorMoved * call s:DiffCursorLineColor()
 augroup END
